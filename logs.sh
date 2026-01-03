@@ -1,0 +1,1 @@
+tmux new-session "multitail -i /transcoder.log" \; split-window -v -p 75 "btop"
