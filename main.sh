@@ -4,8 +4,8 @@
 # common
 JOBS=2
 OUTPUT_DIR="/transcoding/transcoded/"
-INPUT_DIR="/transcoding/to_transcode"
-PROCESS_DIR="/transcoded/transcoding"
+INPUT_DIR="/transcoding/to_transcode/"
+PROCESS_DIR="/transcoding/transcoding/"
 LOG_FILE="/transcoder.log"
 
 # specific to [platform]
@@ -19,12 +19,12 @@ PRESET_NVIDIA="slow" # [nvidia]
 mkdir -p "$OUTPUT_DIR"
 
 do_encode() {
-	input="$1"
 	# exporting variables helps the nix bash compiler not scream about unused variables
+	export input="$1"
 	export target_pct="$2"
 	export crf="$3"
-	out_dir="$4"
-	process_dir="$5"
+	export out_dir="$4"
+	export process_dir="$5"
 	export preset_cpu="$6"
 	export preset_intel="$7"
 	export preset_nvidia="$8"
@@ -49,10 +49,10 @@ do_encode() {
 	is_hdr=$(ffprobe -v error -show_streams "$process" | grep "transfer=smpte2084")
 	if [ -n "$is_hdr" ]; then
 		echo "=> HDR file : converting to 10-bit SDR..."
-		VIDEO_FILTER="zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709,format=yuv420p10le"
+		export VIDEO_FILTER="zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709,format=yuv420p10le"
 	else
 		echo "=> SDR file : Direct encoding to 10-bit..."
-		VIDEO_FILTER="format=yuv420p10le"
+		export VIDEO_FILTER="format=yuv420p10le"
 	fi
 
 	ENCODER # will be replaced by the encoder by the nix code
