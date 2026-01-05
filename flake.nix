@@ -47,6 +47,7 @@
           transcode-intel = nixos-generators.nixosGenerate (source ./transcoders/intel.sh);
           transcode-nvidia = nixos-generators.nixosGenerate (source ./transcoders/nvidia.sh);
           transcode-cpu = nixos-generators.nixosGenerate (source ./transcoders/cpu.sh);
+          transcode-test = nixos-generators.nixosGenerate (source ./transcoders/test.sh);
         };
     };
 }
