@@ -1,4 +1,3 @@
-flake.lock
 *.iso
 result
 .direnv
