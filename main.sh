@@ -3,9 +3,9 @@
 # ==========================================
 # common
 JOBS=2
-OUTPUT_DIR="/transcoding/transcoded/"
-INPUT_DIR="/transcoding/to_transcode/"
-PROCESS_DIR="/transcoding/transcoding/"
+INPUT_DIR="/transcoding/to_transcode"
+PROCESS_DIR="/transcoding/transcoding"
+OUTPUT_DIR="/transcoding/transcoded"
 LOG_FILE="/transcoder.log"
 
 # specific to [platform]
@@ -23,6 +23,8 @@ mkdir -p "$OUTPUT_DIR"
 do_encode() {
 	# exporting variables helps the nix bash compiler not scream about unused variables
 	export input="$1"
+	input_name=$(basename $input)
+	export input_name
 	export target_pct="$2"
 	export crf="$3"
 	export out_dir="$4"
@@ -35,8 +37,8 @@ do_encode() {
 		return 0
 	fi
 
-	process="$process_dir/${input}"
-	output="$out_dir/${input%.*}.mkv"
+	process="$process_dir/$input_name"
+	output="$out_dir/${input_name%.*}.mkv"
 
 	mv "$input" "$process"
 
@@ -65,7 +67,8 @@ do_encode() {
 
 export -f do_encode
 
+echo "" > $LOG_FILE
 parallel --will-cite --jobs "$JOBS" --line-buffer \
 	do_encode {} "$TARGET_PERCENT" "$CRF_VALUE" "$OUTPUT_DIR" "$PROCESS_DIR" \
 	"$PRESET_CPU" "$PRESET_INTEL" "$PRESET_NVIDIA" \
-	::: "${INPUT_DIR}/*.*" | tee -a "$LOG_FILE"
+	::: $INPUT_DIR/* | tee -a "$LOG_FILE"
