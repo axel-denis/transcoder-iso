@@ -50,7 +50,7 @@ do_encode() {
 	export avg_bitrate
 
 	# Checking for HDR
-	is_hdr=$(ffprobe -v error -show_streams "$process" | grep "transfer=smpte2084")
+	is_hdr=$(ffprobe -v error -show_streams "$(readlink -f $process)" | grep "transfer=smpte2084")
 	if [ -n "$is_hdr" ]; then
 		echo "=> HDR file : converting to 10-bit SDR..."
 		export VIDEO_FILTER="zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709,format=yuv420p10le"

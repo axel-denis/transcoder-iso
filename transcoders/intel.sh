@@ -1,7 +1,8 @@
-echo ">>> [INTEL QSV] Starting : $process ($((avg_bitrate / 1000)) kbps)"
-ffmpeg -nostdin -hide_banner -i "$process" \
+echo ">>> [INTEL QSV] Starting : $(readlink -f $process) ($((avg_bitrate / 1000)) kbps)"
+ffmpeg -nostdin -hide_banner -hwaccel qsv -i "$(readlink -f $process)" \
 	-vf "$VIDEO_FILTER" \
-	-c:v hevc_qsv \
+	--hwaccel_output_format qsv \
+	-c:v h265_qsv \
 	-preset "$preset_intel" \
 	-b:v "$avg_bitrate" \
 	-maxrate "$((avg_bitrate * 15 / 10))" \
