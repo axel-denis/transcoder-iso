@@ -3,17 +3,17 @@
 # ==========================================
 # common
 JOBS=2
-OUTPUT_DIR="/transcoding/transcoded/"
-INPUT_DIR="/transcoding/to_transcode/"
-PROCESS_DIR="/transcoding/transcoding/"
-LOG_FILE="/transcoder.log"
+OUTPUT_DIR="/test/transcoded/"
+INPUT_DIR="/test/to_transcode/"
+PROCESS_DIR="/test/transcoding/"
+LOG_FILE="/test/transcoder.log"
 
 # specific to [platform]
-TARGET_PERCENT=70 # [intel, nvidia]
-CRF_VALUE=23 # [cpu]
-PRESET_CPU="slow" # veryfast, fast, medium, slow, slower, veryslow [cpu]
+TARGET_PERCENT=70     # [intel, nvidia]
+CRF_VALUE=23          # [cpu]
+PRESET_CPU="slow"     # veryfast, fast, medium, slow, slower, veryslow [cpu]
 PRESET_INTEL="slower" # [intel]
-PRESET_NVIDIA="slow" # [nvidia]
+PRESET_NVIDIA="slow"  # [nvidia]
 # ==========================================
 
 mkdir -p "$INPUT_DIR"
@@ -57,9 +57,11 @@ do_encode() {
 		export VIDEO_FILTER="format=yuv420p10le"
 	fi
 
-	ENCODER # will be replaced by the encoder by the nix code
+	waitingTime=$(shuf -i 1-5 -n 1)
+	echo ">>> [TEST] Starting : $process | faking $waitingTime seconds long process"
+	sleep "$waitingTime"
+	touch "$output"
 
-	echo "[$(date +'%H:%M:%S')] FINISHED : $process"
 	rm "$process"
 }
 
@@ -68,4 +70,4 @@ export -f do_encode
 parallel --will-cite --jobs "$JOBS" --line-buffer \
 	do_encode {} "$TARGET_PERCENT" "$CRF_VALUE" "$OUTPUT_DIR" "$PROCESS_DIR" \
 	"$PRESET_CPU" "$PRESET_INTEL" "$PRESET_NVIDIA" \
-	::: "${INPUT_DIR}/*.*" | tee -a "$LOG_FILE"
+	::: "${INPUT_DIR}/*.*"
