@@ -4,5 +4,6 @@
   options = [
     "username=transcodeUser"
     "password=transcoding"
+    "mfsymlinks" # allows for local symlinks
   ];
 }
