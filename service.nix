@@ -2,7 +2,7 @@
 let
   transcode-script = pkgs.writeShellApplication {
     name = "transcode-script.sh";
-    runtimeInputs = with pkgs; [ ffmpeg parallel bc ];
+    runtimeInputs = with pkgs; [ ffmpeg parallel bc exiftool ];
     text = import ./transcoder.nix pkgs.lib sourcescript;
   };
   logs-script = pkgs.writeShellApplication {
