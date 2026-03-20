@@ -6,17 +6,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs =
-    {
-      self,
-      nixpkgs,
-      nixos-generators,
-      ...
-    }:
+  outputs = { self, nixpkgs, nixos-generators, ... }:
     let
       systempkgs = import nixpkgs { system = "x86_64-linux"; };
-    in
-    {
+      helpers = import ./helpers.nix {
+        inherit nixpkgs;
+        inherit nixos-generators;
+      };
+    in {
       devShells.x86_64-linux.default = systempkgs.mkShellNoCC {
         packages = with systempkgs; [
           shfmt
@@ -28,26 +25,6 @@
         ];
       };
 
-      packages.x86_64-linux =
-        let
-          pkgs = systempkgs;
-          source = sourcescript: {
-            system = "x86_64-linux";
-            pkgs = systempkgs;
-            format = "iso";
-            modules = [
-              (import ./service.nix {
-                pkgs = systempkgs;
-                sourcescript = sourcescript;
-              })
-            ];
-          };
-        in
-        {
-          transcode-intel = nixos-generators.nixosGenerate (source ./transcoders/intel.sh);
-          transcode-nvidia = nixos-generators.nixosGenerate (source ./transcoders/nvidia.sh);
-          transcode-cpu = nixos-generators.nixosGenerate (source ./transcoders/cpu.sh);
-          transcode-test = nixos-generators.nixosGenerate (source ./transcoders/test.sh);
-        };
+      packages.x86_64-linux = helpers.transcodersDeclaration;
     };
 }
