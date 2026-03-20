@@ -25,6 +25,10 @@ let
         pkgs = systempkgs;
         sourcescript = sourcescript;
       })
+      {
+        virtualisation.cores = 6;
+        virtualisation.memorySize = 8096;
+      }
     ];
   };
 
@@ -49,6 +53,6 @@ let
   ];
 
 in {
-  transcodersDeclaration =
-    (builtins.listToAttrs (lib.flatten (map transcoderToDeclaration listTranscoders)));
+  transcodersDeclaration = (builtins.listToAttrs
+    (lib.flatten (map transcoderToDeclaration listTranscoders)));
 }

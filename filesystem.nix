@@ -1,9 +1,9 @@
 {
-  device = "//192.168.0.200/transcoding";
+  device = "//${fsAddress}"; # ex 192.168.0.200/transcoding
   fsType = "cifs";
   options = [
-    "username=transcodeUser"
-    "password=transcoding"
+    "username=${builtins.getEnv "fsUsername"}"
+    "password=${builtins.getEnv "fsPassword"}"
     "mfsymlinks" # allows for local symlinks
   ];
 }
