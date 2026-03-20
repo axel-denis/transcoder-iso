@@ -8,6 +8,8 @@ PROCESS_DIR="/transcoding/transcoding"
 OUTPUT_DIR="/transcoding/transcoded"
 LOG_FILE="/transcoder.log"
 
+HOME="/" # don't change
+
 # specific to [platform]
 TARGET_PERCENT=70 # [intel, nvidia]
 CRF_VALUE=23 # [cpu]
@@ -16,7 +18,6 @@ PRESET_INTEL="slower" # [intel]
 PRESET_NVIDIA="slow" # [nvidia]
 # ==========================================
 
-mkdir -p "$INPUT_DIR"
 mkdir -p "$PROCESS_DIR"
 mkdir -p "$OUTPUT_DIR"
 
@@ -50,7 +51,7 @@ do_encode() {
 	export avg_bitrate
 
 	# Checking for HDR
-	is_hdr=$(ffprobe -v error -show_streams "$(readlink -f "$process")" | grep "transfer=smpte2084")
+	is_hdr=$(ffprobe -v error -show_streams "$process" | grep "transfer=smpte2084")
 	if [ -n "$is_hdr" ]; then
 		echo "=> HDR file : converting to 10-bit SDR..."
 		export VIDEO_FILTER="zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,zscale=t=bt709:m=bt709,format=yuv420p10le"
@@ -62,13 +63,16 @@ do_encode() {
 	ENCODER # will be replaced by the encoder by the nix code
 
 	echo "[$(date +'%H:%M:%S')] FINISHED : $process"
-	rm "$process"
 }
 
 export -f do_encode
 
 echo "" > $LOG_FILE
+
+while true; do
 parallel --will-cite --jobs "$JOBS" --line-buffer \
 	do_encode {} "$TARGET_PERCENT" "$CRF_VALUE" "$OUTPUT_DIR" "$PROCESS_DIR" \
 	"$PRESET_CPU" "$PRESET_INTEL" "$PRESET_NVIDIA" \
-	::: $INPUT_DIR/* | tee -a "$LOG_FILE"
+	::: $INPUT_DIR/* | tee -a "$LOG_FILE";
+sleep 5;
+done

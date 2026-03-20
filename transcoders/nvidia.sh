@@ -1,5 +1,5 @@
-echo ">>> [NVENC] Starting : $(readlink -f $process) ($((avg_bitrate / 1000)) kbps)"
-ffmpeg -nostdin -hide_banner -i "$(readlink -f $process)" \
+echo ">>> [NVENC] Starting : $process ($((avg_bitrate / 1000)) kbps)"
+ffmpeg -nostdin -hide_banner -i "$process" \
 	-vf "$VIDEO_FILTER" \
 	-c:v hevc_nvenc \
 	-rc vbr \

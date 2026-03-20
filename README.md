@@ -25,7 +25,6 @@ Have a Samba share containing the following:
 /to_transcode
   -> all video files
 ```
-Video files should be symlinks for performances purposes. (also because they will be deleted during the process)
 
 Each node will connect to the Samba, select a file in `/to_transcode` and move it to `/transcoding`
 Then transcode it, putting the result in `/transcoded`
@@ -91,24 +90,19 @@ You can check status of transcoding on each node on port `80`
 
 ## More tips
 
-1.
-If you have a large library, it's maybe split between many disks. No worries. You can use [mount --bind](https://unix.stackexchange.com/questions/198590/what-is-a-bind-mount) to mount directories you want on your Samba.
-It's better to do this than to use symlinks. Symlinks should not be pointing outside of your Samba share. With `mount --bind`, you mount the dirs you want onto your Samba share, then create the needed symlinks from this mount to the `/to_transcode` and voila, your symlink goes to and from your Samba share only.
-
-2.
 You should check the output before deleting your original files. The market of codecs, color ranges, video formats and more is a total mess and the settings I choose may not work for you.
-That's why using symlinks in the `/to_transcode` folder is best.
+Your original files are kept under the `transcoding` folder
 
 ## Adding your own script
 You can see the existing scripts in the `transcoders` folder. They are just an FFMPEG command, triggered by [main.sh](./main.sh).
 
-You can add your own. Most of the variables provided by [main](./main.sh) are optionals, (telling a target size, if the media is hdr, etc).
-The only mandatory are the `process` (symlink to the file to transcode) and the `output` (where to save the transcoded file) ones.
+You can add your own, keep the same structure and create your own .sh file with your ffmpeg command.
 
-Note that `process` is a symlink, so you must resolve it:
-```bash
-readlink -f $process
-```
+You need to `git add` the file if Nix doesn't see it.
+
+Most of the variables provided by [main](./main.sh) are optionals, (telling a target size, if the media is hdr, etc).
+The only mandatory are the `process` (file to transcode) and the `output` (where to save the transcoded file) ones.
+
 
 The `VIDEO_FILTER` provides an SDR color space to convert to if the media is HDR.
 

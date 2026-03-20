@@ -26,7 +26,7 @@ let
         sourcescript = sourcescript;
       })
       {
-        virtualisation.cores = 6;
+        virtualisation.cores = 12;
         virtualisation.memorySize = 8096;
       }
     ];

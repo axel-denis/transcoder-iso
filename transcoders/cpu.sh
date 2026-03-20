@@ -1,5 +1,5 @@
-echo ">>> [CPU] Starting : $(readlink -f $process) ($crf)"
-ffmpeg -nostdin -hide_banner -i "$(readlink -f $process)" \
+echo ">>> [CPU] Starting : $process ($crf)"
+ffmpeg -nostdin -hide_banner -i "$process" \
 	-vf "$VIDEO_FILTER" \
 	-c:v libx265 \
 	-crf "$crf" \
