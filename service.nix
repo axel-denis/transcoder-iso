@@ -1,5 +1,6 @@
 { pkgs, sourcescript, ... }:
 let
+  creds = import ./creds.nix;
   transcode-script = pkgs.writeShellApplication {
     name = "transcode-script.sh";
     runtimeInputs = with pkgs; [ ffmpeg parallel bc exiftool ];
@@ -44,10 +45,10 @@ in {
 
   systemd.mounts = [{
     description = "CIFS Mount for Transcodings";
-    what = "//192.168.0.101/transcodings";
+    what = "//${creds.fsAddress}";
     where = "/transcoding";
     type = "cifs";
-    options = "username=${builtins.getEnv "fsUsername"},password=${builtins.getEnv "fsPassword"},_netdev,x-systemd.after=network-online.target,x-systemd.mount-timeout=30";
+    options = "username=${creds.fsUsername},password=${creds.fsPassword},_netdev,x-systemd.after=network-online.target,x-systemd.mount-timeout=30";
     requires = [ "network-online.target" "network.target" ];
     after = [ "network-online.target" "network.target" ];
   }];

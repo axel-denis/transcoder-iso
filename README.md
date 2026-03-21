@@ -53,7 +53,7 @@ You can also change other variables, but it will probably break the whole softwa
 ### Building the project (ISO or VM)
 **Build the iso you need** with the following command:
 ```nix
-nix build ".#transcode-<cpu/nvidia/intel/...>"
+nix build "path:.#transcode-<cpu/nvidia/intel/...>"
 ```
 
 If you want to quickly try without having a machine to test on, you can directly generate a virtual machine to test on (no additional steps required!). Just add "-vm" at the end of your desired script. Example:
