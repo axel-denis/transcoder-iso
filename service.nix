@@ -1,6 +1,6 @@
 { pkgs, sourcescript, ... }:
 let
-  creds = import ./creds.nix;
+  creds = (import ./creds.nix);
   transcode-script = pkgs.writeShellApplication {
     name = "transcode-script.sh";
     runtimeInputs = with pkgs; [ ffmpeg parallel bc exiftool ];

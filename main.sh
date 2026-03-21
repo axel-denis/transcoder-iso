@@ -18,10 +18,10 @@ PRESET_INTEL="slower" # [intel]
 PRESET_NVIDIA="slow" # [nvidia]
 # ==========================================
 
-mkdir -p "$PROCESS_DIR"
-mkdir -p "$OUTPUT_DIR"
-
 do_encode() {
+	mkdir -p "$PROCESS_DIR"
+	mkdir -p "$OUTPUT_DIR"
+
 	# exporting variables helps the nix bash compiler not scream about unused variables
 	export input="$1"
 	input_name=$(basename "$input")
@@ -73,6 +73,6 @@ while true; do
 parallel --will-cite --jobs "$JOBS" --line-buffer \
 	do_encode {} "$TARGET_PERCENT" "$CRF_VALUE" "$OUTPUT_DIR" "$PROCESS_DIR" \
 	"$PRESET_CPU" "$PRESET_INTEL" "$PRESET_NVIDIA" \
-	::: $INPUT_DIR/* | tee -a "$LOG_FILE";
+	::: "$(find "$INPUT_DIR" -type f)" | tee -a "$LOG_FILE";
 sleep 5;
 done
