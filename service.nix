@@ -48,7 +48,8 @@ in {
     what = "//${creds.fsAddress}";
     where = "/transcoding";
     type = "cifs";
-    options = "username=${creds.fsUsername},password=${creds.fsPassword},_netdev,x-systemd.after=network-online.target,x-systemd.mount-timeout=30";
+    options =
+      "username=${creds.fsUsername},password=${creds.fsPassword},_netdev,x-systemd.after=network-online.target,x-systemd.mount-timeout=30";
     requires = [ "network-online.target" "network.target" ];
     after = [ "network-online.target" "network.target" ];
   }];

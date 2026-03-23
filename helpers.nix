@@ -2,15 +2,15 @@
 
 let
   lib = nixpkgs.lib;
-  systempkgs = import nixpkgs { system = "x86_64-linux"; };
+  pkgs = import nixpkgs { system = "x86_64-linux"; };
 
   source = sourcescript: {
     system = "x86_64-linux";
-    pkgs = systempkgs;
+    inherit pkgs;
     format = "iso";
     modules = [
       (import ./service.nix {
-        pkgs = systempkgs;
+        inherit pkgs;
         sourcescript = sourcescript;
       })
     ];
@@ -18,11 +18,11 @@ let
 
   source-vm = sourcescript: {
     system = "x86_64-linux";
-    pkgs = systempkgs;
+    inherit pkgs;
     format = "vm";
     modules = [
       (import ./service.nix {
-        pkgs = systempkgs;
+        inherit pkgs;
         sourcescript = sourcescript;
       })
       {
@@ -31,6 +31,18 @@ let
       }
     ];
   };
+
+  source-script = sourcescript:
+    (pkgs.mkShellNoCC {
+      packages =
+        [
+          (pkgs.writeShellApplication {
+            name = "transcode-script.sh";
+            runtimeInputs = with pkgs; [ ffmpeg parallel bc exiftool ];
+            text = import ./transcoder.nix nixpkgs.lib sourcescript;
+          })
+        ];
+    });
 
   listTranscodersScripts = (lib.filesystem.listFilesRecursive ./transcoders/.);
 
@@ -49,6 +61,10 @@ let
     {
       name = "transcode-${transcoder.name}-vm";
       value = nixos-generators.nixosGenerate (source-vm transcoder.path);
+    }
+    {
+      name = "transcode-${transcoder.name}-script";
+      value = source-script transcoder.path;
     }
   ];
 

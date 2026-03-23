@@ -8,14 +8,16 @@
   };
   outputs = { self, nixpkgs, nixos-generators, ... }:
     let
-      systempkgs = import nixpkgs { system = "x86_64-linux"; };
+      system = "x86_64-linux";
+      systempkgs = import nixpkgs { inherit system; };
       helpers = import ./helpers.nix {
         inherit nixpkgs;
         inherit nixos-generators;
       };
+      pkgs = systempkgs;
     in {
-      devShells.x86_64-linux.default = systempkgs.mkShellNoCC {
-        packages = with systempkgs; [
+      devShells.${system}.default = pkgs.mkShellNoCC {
+        packages = with pkgs; [
           shfmt
           nixfmt
           bc
@@ -25,6 +27,7 @@
         ];
       };
 
-      packages.x86_64-linux = helpers.transcodersDeclaration;
+      packages.${system} = helpers.transcodersDeclaration;
+      formatter.${system} = pkgs.nixfmt;
     };
 }
