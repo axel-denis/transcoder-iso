@@ -4,9 +4,9 @@
 # common
 JOBS=2
 INPUT_DIR="/transcoding/to_transcode"
-PROCESS_DIR="/transcoding/transcoding"
 OUTPUT_DIR="/transcoding/transcoded"
-LOG_FILE="/transcoder.log"
+TRACKING_FILE="/transcoding/transcoding_list.txt"
+LOG_FILE="/transcoding/transcoder.log"
 
 HOME="/" # don't change
 
@@ -19,8 +19,6 @@ PRESET_NVIDIA="slow" # [nvidia]
 # ==========================================
 
 do_encode() {
-	mkdir -p "$PROCESS_DIR"
-	mkdir -p "$OUTPUT_DIR"
 
 	# exporting variables helps the nix bash compiler not scream about unused variables
 	export input="$1"
@@ -29,7 +27,7 @@ do_encode() {
 	export target_pct="$2"
 	export crf="$3"
 	export out_dir="$4"
-	export process_dir="$5"
+	export tracking_file="$5"
 	export preset_cpu="$6"
 	export preset_intel="$7"
 	export preset_nvidia="$8"
@@ -38,10 +36,17 @@ do_encode() {
 		return 0
 	fi
 
-	process="$process_dir/$input_name"
+	# Use a lock file to ensure atomic checks across multiple jobs and nodes.
+ 	(
+		flock -x 200
+		[ ! -f "$tracking_file" ] && touch "$tracking_file"
+		grep -Fxq "$input" "$tracking_file" && exit 1
+		echo "$input" >> "$tracking_file"
+	) 200>"${tracking_file}.lock" || return 0
+
+	process="$input"
 	output="$out_dir/${input_name%.*}.mkv"
 
-	mv "$input" "$process"
 
 	# Estimating target size (for intel/nvidia)
 	size_bytes=$(stat -c%s "$process")
@@ -68,10 +73,12 @@ do_encode() {
 export -f do_encode
 
 echo "" > $LOG_FILE
+mkdir -p "$OUTPUT_DIR"
+
 
 while true; do
 parallel --will-cite --jobs "$JOBS" --line-buffer \
-	do_encode {} "$TARGET_PERCENT" "$CRF_VALUE" "$OUTPUT_DIR" "$PROCESS_DIR" \
+	do_encode {} "$TARGET_PERCENT" "$CRF_VALUE" "$OUTPUT_DIR" "$TRACKING_FILE" \
 	"$PRESET_CPU" "$PRESET_INTEL" "$PRESET_NVIDIA" \
 	::: "$(find "$INPUT_DIR" -type f)" | tee -a "$LOG_FILE";
 sleep 5;
