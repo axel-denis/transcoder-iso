@@ -10,7 +10,7 @@ It is almost bare metal on purpose. No configuration gui, no tools... I didn't t
 - All files stored in 10bits mode (even if was 8bit before)
 - Display a web page to see the current logs of transcoding on the port 80
 
-# Support:
+# Support (provided by defaults scripts):
 - CPU (sowfware)
 - NVENC (nvidia hardware) (not properly tested)
 - QSV (intel hardware) (not properly tested)
@@ -26,8 +26,7 @@ Have a Samba share containing the following:
   -> all video files
 ```
 
-Each node will connect to the Samba, select a file in `/to_transcode` and move it to `/transcoding`
-Then transcode it, putting the result in `/transcoded`
+Each node will connect to the Samba, select a file in `/to_transcode` and transcode it, putting the result in `/transcoded`
 
 ## Now the real steps
 
@@ -91,7 +90,6 @@ You can check status of transcoding on each node on port `80`
 ## More tips
 
 You should check the output before deleting your original files. The market of codecs, color ranges, video formats and more is a total mess and the settings I choose may not work for you.
-Your original files are kept under the `transcoding` folder
 
 ## Adding your own script
 You can see the existing scripts in the `transcoders` folder. They are just an FFMPEG command, triggered by [main.sh](./main.sh).
